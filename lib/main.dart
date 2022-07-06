@@ -15,9 +15,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        fontFamily: 'Lato',
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepPurple)
+            .copyWith(secondary: Colors.amber),
       ),
       home: ProductOverviewScreen(),
     );
   }
 }
+
+// Add product -detail page and its named route
+// pass the detail page the product id
