@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/product.dart';
+import './product.dart';
 
 class ProductsProvider with ChangeNotifier {
   final List<Product> _products = [
@@ -42,6 +42,9 @@ class ProductsProvider with ChangeNotifier {
     return [..._products];
   } 
 
+  Product findProductByID(String id) {
+    return _products.firstWhere((product) => product.id == id);
+  }
   void addProducts(Product product) {
     _products.add(product);
     notifyListeners();
