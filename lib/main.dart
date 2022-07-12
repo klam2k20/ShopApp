@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 
 import './screens/products_overview_screen.dart';
 import './screens/product_detail_screen.dart';
+import './screens/cart_screen.dart';
 import './providers/products_provider.dart';
-import 'providers/cartItems_provider.dart';
+import './providers/cartItems_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
       child: ChangeNotifierProvider(
         create: (ctx) => ProductsProvider(),
         child: MaterialApp(
+          debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: ThemeData(
             fontFamily: 'Lato',
@@ -35,6 +37,7 @@ class MyApp extends StatelessWidget {
           home: ProductOverviewScreen(),
           routes: {
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+            CartScreen.routeName: (ctx) => CartScreen(),
           },
         ),
       ),

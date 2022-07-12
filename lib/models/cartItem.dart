@@ -2,7 +2,7 @@ import '../providers/product.dart';
 
 class CartItem {
   final Product product;
-  final int quality;
+  final int quantity;
 
-  CartItem(this.product, this.quality);
+  CartItem(this.product, this.quantity);
 }
