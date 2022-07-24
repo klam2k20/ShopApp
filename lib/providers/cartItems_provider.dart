@@ -32,4 +32,9 @@ class CartItemProvider with ChangeNotifier {
     _cartItems.remove(productID);
     notifyListeners();
   }
+
+  void clear() {
+    _cartItems.clear();
+    notifyListeners();
+  }
 }
