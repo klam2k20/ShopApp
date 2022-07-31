@@ -13,7 +13,8 @@ class CartItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cartDataProvider = Provider.of<CartItemProvider>(context, listen: false);
+    final cartDataProvider =
+        Provider.of<CartItemProvider>(context, listen: false);
 
     return Dismissible(
       key: ValueKey(id),
@@ -23,8 +24,23 @@ class CartItem extends StatelessWidget {
         padding: const EdgeInsets.only(right: 20),
         child: const Icon(Icons.delete),
       ),
-      onDismissed: (_) => cartDataProvider.removeCartItem(id) ,
+      onDismissed: (_) => cartDataProvider.removeCartItem(id),
       direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) {
+        return showDialog(
+            context: context,
+            builder: (cxt) => AlertDialog(
+                  content: Text('Do you want to remove $title from the cart?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.of(cxt).pop(true),
+                        child: const Text('Yes')),
+                    TextButton(
+                        onPressed: () => Navigator.of(cxt).pop(false),
+                        child: const Text('No'))
+                  ],
+                ));
+      },
       child: Card(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

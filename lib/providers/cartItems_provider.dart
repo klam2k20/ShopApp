@@ -11,7 +11,8 @@ class CartItemProvider with ChangeNotifier {
   }
 
   double get cartTotal {
-    return _cartItems.values.fold(0, (total, item) => total + (item.quantity * item.product.price));
+    return _cartItems.values
+        .fold(0, (total, item) => total + (item.quantity * item.product.price));
   }
 
   int get cartCount {
@@ -20,8 +21,10 @@ class CartItemProvider with ChangeNotifier {
 
   void addCartItem(Product product) {
     if (_cartItems.containsKey(product.id)) {
-      _cartItems.update(product.id,
-          (existingCartItem) => CartItem(product, existingCartItem.quantity+1));
+      _cartItems.update(
+          product.id,
+          (existingCartItem) =>
+              CartItem(product, existingCartItem.quantity + 1));
     } else {
       _cartItems[product.id] = CartItem(product, 1);
     }
@@ -30,6 +33,21 @@ class CartItemProvider with ChangeNotifier {
 
   void removeCartItem(String productID) {
     _cartItems.remove(productID);
+    notifyListeners();
+  }
+
+  void removeSingleCartItem(Product product) {
+    if (!_cartItems.containsKey(product.id)) {
+      return;
+    }
+    if (_cartItems[product.id]!.quantity > 1) {
+      _cartItems.update(
+          product.id,
+          (existingCartItem) =>
+              CartItem(product, existingCartItem.quantity - 1));
+    } else {
+      _cartItems.remove(product.id);
+    }
     notifyListeners();
   }
 
