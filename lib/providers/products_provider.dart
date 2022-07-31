@@ -53,7 +53,4 @@ class ProductsProvider with ChangeNotifier {
     _products.add(product);
     notifyListeners();
   }
-
-
-  
 }
