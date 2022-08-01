@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/product.dart';
+import '../providers/products_provider.dart';
 
 class EditProductScreen extends StatefulWidget {
   static String routeName = '/edit-product';
@@ -26,14 +28,52 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _saveForm() {
     if (_form.currentState != null) {
+      // Returns true if all validator functions on
+      // the inputs pass
+      final isValid = _form.currentState!.validate();
+      if (!isValid) {
+        return;
+      }
       // Execute all onSaved functions in form
       _form.currentState!.save();
-      print(product.title);
-      print(product.description);
-      print(product.price);
-      print(product.imageUrl);
-      print(product.id);
+      Provider.of<ProductsProvider>(context, listen: false).addProduct(product);
+      Navigator.of(context).pop();
     }
+  }
+
+  String? _validateText(String? value, String type) {
+    if (value == null || value.isEmpty) {
+      // If a text is returned the validator failed
+      return 'Please enter a $type';
+    }
+    // If null is returned the validtor passes
+    return null;
+  }
+
+  String? _validatePrice(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a price';
+    }
+    // If try parse equal null number is not valid
+    if (double.tryParse(value) == null) {
+      return 'Please enter a valid price';
+    }
+    if (double.parse(value) <= 0) {
+      return 'Please enter a price above 0';
+    }
+    return null;
+  }
+
+  String? _validImageUrl(String? value) {
+    if (value == null ||
+        value.isEmpty ||
+        !Uri.parse(value).isAbsolute ||
+        (!value.endsWith('.png') &&
+            !value.endsWith('.jpg') &&
+            !value.endsWith('.jpeg'))) {
+      return 'Please enter an image URL';
+    }
+    return null;
   }
 
   @override
@@ -73,6 +113,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Title'),
                 textInputAction: TextInputAction.next,
+                validator: (value) => _validateText(value, 'title'),
                 onFieldSubmitted: (_) {
                   // Function is called when text input action is pressed
                   // i.e. when next or done is pressed
@@ -92,6 +133,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 focusNode: _priceFocusNode,
+                validator: (value) => _validatePrice(value),
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_descriptionFocusNode);
                 },
@@ -109,6 +151,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 keyboardType: TextInputType.multiline,
                 maxLines: 3,
                 focusNode: _descriptionFocusNode,
+                validator: (value) => _validateText(value, 'description'),
                 onSaved: (value) {
                   product = Product(
                       id: product.id,
@@ -128,11 +171,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     decoration: BoxDecoration(
                       border: Border.all(width: 1),
                     ),
-                    child: _imageUrlController.text.isEmpty
+                    child: (_imageUrlController.text.isEmpty ||
+                            !Uri.parse(_imageUrlController.text).isAbsolute)
                         ? const Text('Enter Image URL')
                         : FittedBox(
-                            fit: BoxFit.cover,
-                            child: Image.network(_imageUrlController.text),
+                            fit: BoxFit.fill,
+                            child: Image.network(
+                              _imageUrlController.text,
+                              //Handles errors
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(Icons.error),
+                            ),
                           ),
                   ),
                   Expanded(
@@ -142,6 +191,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       keyboardType: TextInputType.url,
                       focusNode: _imageUrlFocusNode,
                       controller: _imageUrlController,
+                      validator: (value) => _validImageUrl(value),
                       onSaved: (value) {
                         product = Product(
                             id: product.id,
