@@ -19,6 +19,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _form = GlobalKey<FormState>();
   var product =
       Product(id: '', title: '', price: 0, description: '', imageUrl: '');
+  var _isInit = true;
 
   void _updateImageURL() {
     if (_imageUrlFocusNode.hasFocus) {
@@ -36,7 +37,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
       }
       // Execute all onSaved functions in form
       _form.currentState!.save();
-      Provider.of<ProductsProvider>(context, listen: false).addProduct(product);
+      if (product.id != '') {
+        Provider.of<ProductsProvider>(context, listen: false)
+            .updateProduct(product.id, product);
+      } else {
+        Provider.of<ProductsProvider>(context, listen: false)
+            .addProduct(product);
+      }
       Navigator.of(context).pop();
     }
   }
@@ -77,6 +84,20 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      var productID = ModalRoute.of(context)!.settings.arguments;
+      if (productID != null) {
+        product = Provider.of<ProductsProvider>(context, listen: false)
+            .findProductByID(productID as String);
+        _imageUrlController.text = product.imageUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
+
+  @override
   void initState() {
     _imageUrlController.addListener(_updateImageURL);
     super.initState();
@@ -111,6 +132,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             key: _form,
             child: ListView(children: [
               TextFormField(
+                initialValue: product.title,
                 decoration: const InputDecoration(labelText: 'Title'),
                 textInputAction: TextInputAction.next,
                 validator: (value) => _validateText(value, 'title'),
@@ -121,14 +143,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
                 onSaved: (value) {
                   product = Product(
-                      id: product.id,
-                      title: value as String,
-                      description: product.description,
-                      price: product.price,
-                      imageUrl: product.imageUrl);
+                    id: product.id,
+                    title: value as String,
+                    description: product.description,
+                    price: product.price,
+                    imageUrl: product.imageUrl,
+                    isFavorite: product.favorite,
+                  );
                 },
               ),
               TextFormField(
+                initialValue: product.price.toStringAsFixed(2),
                 decoration: const InputDecoration(labelText: 'Price'),
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
@@ -139,14 +164,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
                 onSaved: (value) {
                   product = Product(
-                      id: product.id,
-                      title: product.title,
-                      description: product.description,
-                      price: double.parse(value as String),
-                      imageUrl: product.imageUrl);
+                    id: product.id,
+                    title: product.title,
+                    description: product.description,
+                    price: double.parse(value as String),
+                    imageUrl: product.imageUrl,
+                    isFavorite: product.favorite,
+                  );
                 },
               ),
               TextFormField(
+                initialValue: product.description,
                 decoration: const InputDecoration(labelText: 'Description'),
                 keyboardType: TextInputType.multiline,
                 maxLines: 3,
@@ -154,11 +182,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 validator: (value) => _validateText(value, 'description'),
                 onSaved: (value) {
                   product = Product(
-                      id: product.id,
-                      title: product.title,
-                      description: value as String,
-                      price: product.price,
-                      imageUrl: product.imageUrl);
+                    id: product.id,
+                    title: product.title,
+                    description: value as String,
+                    price: product.price,
+                    imageUrl: product.imageUrl,
+                    isFavorite: product.favorite,
+                  );
                 },
               ),
               Row(
@@ -194,11 +224,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       validator: (value) => _validImageUrl(value),
                       onSaved: (value) {
                         product = Product(
-                            id: product.id,
-                            title: product.title,
-                            description: product.description,
-                            price: product.price,
-                            imageUrl: value as String);
+                          id: product.id,
+                          title: product.title,
+                          description: product.description,
+                          price: product.price,
+                          imageUrl: value as String,
+                          isFavorite: product.favorite,
+                        );
                       },
                       onFieldSubmitted: (_) {
                         _saveForm();
