@@ -26,13 +26,16 @@ class CartItem extends StatelessWidget {
       ),
       onDismissed: (_) => cartDataProvider.removeCartItem(id),
       direction: DismissDirection.endToStart,
+      // Expects a future
       confirmDismiss: (direction) {
+        // Dialog returns a future
         return showDialog(
             context: context,
             builder: (cxt) => AlertDialog(
                   content: Text('Do you want to remove $title from the cart?'),
                   actions: [
                     TextButton(
+                        // Wraps whatever is poppped with a future
                         onPressed: () => Navigator.of(cxt).pop(true),
                         child: const Text('Yes')),
                     TextButton(

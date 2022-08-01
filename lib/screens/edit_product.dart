@@ -196,7 +196,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 5, right: 10),
-                    height: 100,
+                height: 100,
                     width: 100,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1),
